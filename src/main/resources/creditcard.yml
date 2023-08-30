@@ -1,0 +1,172 @@
+openapi: 3.0.0
+info:
+  title: Cards
+  description:
+    This application allows you to obtain the information about the cards.
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Cards
+  url: http://swagger.io
+servers:
+  - url: https://localhost:8082
+tags:
+  - name: cards
+    description: Everything about your cards.
+paths:
+  /card:
+    post:
+      tags:
+        - cards
+      summary: Allows you to register a card to a customer.
+      description: Allows a customer to register a card.
+      operationId: createCreditCard
+      requestBody:
+        required: true
+        description: Allows to register a card.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardRequest'
+      responses:
+        '201':
+          description: Card created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+        '400':
+          description: Invalid Request
+
+    patch:
+      tags:
+        - cards
+      summary: Allows you to pay your credit card
+      description: allows you to pay your credit card
+      operationId: payCreditCard
+      requestBody:
+        required: true
+        description: Allows you to pay your credit card.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardPayment'
+      responses:
+        '200':
+          description: The card was paid correctly
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+        '400':
+          description: Invalid Request
+        '404':
+          description: Customer or Card are invalid
+
+  /card/consume:
+    patch:
+      tags:
+        - cards
+      summary: Allows you to consume your credit card.
+      description: Allows you to make a consume with your credit card
+      operationId: consumeCreditCard
+      requestBody:
+        required: true
+        description: Allows you to pay your credit card.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardConsume'
+      responses:
+        '200':
+          description: The consume was made correctly
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+        '400':
+          description: You have exceeded your consumption limit
+        '404':
+          description: Customer or Card are invalid
+
+  /card/customer/{customerDocument}:
+    get:
+      tags:
+        - cards
+      summary: Allows you to consult information about your card.
+      description: Allows you to consult information about your card like amounts.
+      operationId: getCreditCardsByCustomer
+      parameters:
+        - name: customerDocument
+          in: path
+          description: Customer Document
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The consult was made correctly
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Card'
+        '400':
+          description: Invalid Request
+        '404':
+          description: Customer or Card are invalid
+
+components:
+  schemas:
+    CardRequest:
+      required:
+        - cardAmount
+        - customerDocument
+      type: object
+      properties:
+        cardAmount:
+          type: number
+          format: double
+        customerDocument:
+          type: string
+    Card:
+      type: object
+      properties:
+        cardNumber:
+          type: string
+          description: Card number
+        cardAmount:
+          type: number
+          format: double
+        cardAmountConsumed:
+          type: number
+          format: double
+        cardAmountAvailable:
+          type: number
+          format: double
+        costumerDocument:
+          type: string
+        creationDateCard:
+          type: string
+          format: date
+    CardPayment:
+      required:
+        - cardPaymentAmount
+        - cardNumber
+      type: object
+      properties:
+        cardPaymentAmount:
+          type: number
+          format: double
+        cardNumber:
+          type: string
+    CardConsume:
+      required:
+        - cardConsumeAmount
+        - cardNumber
+      type: object
+      properties:
+        cardConsumeAmount:
+          type: number
+          format: double
+        cardNumber:
+          type: string
