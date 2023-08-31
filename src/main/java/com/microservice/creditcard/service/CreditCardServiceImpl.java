@@ -1,11 +1,12 @@
 package com.microservice.creditcard.service;
 
 import com.microservice.creditcard.documents.CreditCardDocument;
+import com.microservice.creditcard.documents.CustomersComplementary;
 import com.microservice.creditcard.documents.MovementsDocuments;
+import com.microservice.creditcard.feignclient.CustomerFeignClient;
 import com.microservice.creditcard.model.Card;
 import com.microservice.creditcard.model.CardRequest;
 import com.microservice.creditcard.repository.CreditCardRepository;
-import com.microservice.creditcard.repository.CustomerRepository;
 import com.microservice.creditcard.repository.MovementsRepository;
 import com.microservice.creditcard.service.mapper.CreditCardMappers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class CreditCardServiceImpl implements CreditCardService{
     private CreditCardRepository creditCardRepository;
 
     @Autowired
-    private CustomerRepository customerRepository;
+    private CustomerFeignClient customerFeignClient;
 
     @Autowired
     private MovementsRepository movementsRepository;
@@ -91,10 +92,10 @@ public class CreditCardServiceImpl implements CreditCardService{
     }
 
     @Override
-    public Boolean validateIfYouCanPayCard(String cardNumber, Double consume) {
+    public Boolean validateIfYouCanPayCard(String cardNumber, Double payment) {
         CreditCardDocument creditCardDocument = creditCardRepository.findById(cardNumber).get();
 
-        return creditCardDocument.getCardAmountConsumed() > 0 && (consume > 0 && consume <= creditCardDocument.getCardAmountConsumed());
+        return creditCardDocument.getCardAmountConsumed() > 0 && (payment > 0 && payment <= creditCardDocument.getCardAmountConsumed());
     }
 
     @Override
@@ -133,6 +134,8 @@ public class CreditCardServiceImpl implements CreditCardService{
 
     @Override
     public Boolean customerRequestExist(String customerDocument) {
-        return customerRepository.existsById(customerDocument);
+        CustomersComplementary complementary = customerFeignClient.getCustomerById(customerDocument);
+
+        return complementary.getCustomerDocument() != null;
     }
 }

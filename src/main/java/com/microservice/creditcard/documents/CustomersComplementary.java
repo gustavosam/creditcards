@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Document(collection = "customers")
-public class CustomerDocument {
+public class CustomersComplementary {
 
     @Id
     @NotNull

@@ -40,7 +40,7 @@ public class CreditCardDelegateImpl implements CardApiDelegate {
     public ResponseEntity<Card> consumeCreditCard(CardConsume cardConsume){
 
         if(cardConsume.getCardNumber() == null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ClaseError.getInstance("El número de tarjeta puede estar vacío"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ClaseError.getInstance("El número de tarjeta no puede estar vacío"));
         }
 
         if(cardConsume.getCardConsumeAmount() == null || cardConsume.getCardConsumeAmount() == 0){

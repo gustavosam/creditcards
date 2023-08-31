@@ -17,7 +17,7 @@ public interface CreditCardService {
 
     Card cardConsume(String cardNumber, Double consume);
 
-    Boolean validateIfYouCanPayCard(String cardNumber, Double consume);
+    Boolean validateIfYouCanPayCard(String cardNumber, Double payment);
 
     Card cardPayment(String cardNumber, Double payment);
 
