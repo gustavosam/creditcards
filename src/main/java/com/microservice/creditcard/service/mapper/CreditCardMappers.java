@@ -27,7 +27,7 @@ public class CreditCardMappers {
         Card card = new Card();
         card.setCardNumber(creditCardDocument.getCardNumber());
         card.setCardAmount(creditCardDocument.getCardAmount());
-        card.setCostumerDocument(creditCardDocument.getCustomerDocument());
+        card.setCustomerDocument(creditCardDocument.getCustomerDocument());
         card.setCardAmountAvailable(creditCardDocument.getCardAmountAvailable());
         card.setCardAmountConsumed(creditCardDocument.getCardAmountConsumed());
         card.setCreationDateCard(creditCardDocument.getCreationDateCard());

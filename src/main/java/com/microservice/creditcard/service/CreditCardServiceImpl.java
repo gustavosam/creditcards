@@ -1,10 +1,12 @@
 package com.microservice.creditcard.service;
 
 import com.microservice.creditcard.documents.CreditCardDocument;
+import com.microservice.creditcard.documents.MovementsDocuments;
 import com.microservice.creditcard.model.Card;
 import com.microservice.creditcard.model.CardRequest;
 import com.microservice.creditcard.repository.CreditCardRepository;
 import com.microservice.creditcard.repository.CustomerRepository;
+import com.microservice.creditcard.repository.MovementsRepository;
 import com.microservice.creditcard.service.mapper.CreditCardMappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,9 @@ public class CreditCardServiceImpl implements CreditCardService{
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private MovementsRepository movementsRepository;
+
     @Override
     public Card createCard(CardRequest cardRequest) {
 
@@ -32,7 +37,19 @@ public class CreditCardServiceImpl implements CreditCardService{
         creditCardDocument.setCardAmountAvailable(cardRequest.getCardAmount());
         creditCardDocument.setCardAmountConsumed(0.0);
 
-        return CreditCardMappers.mapCreditCardDocumentToCard( creditCardRepository.save(creditCardDocument) );
+        Card cardNew = CreditCardMappers.mapCreditCardDocumentToCard( creditCardRepository.save(creditCardDocument) );
+
+        //LA ALTA DE TARJETA GENERA UN MOVIMIENTO
+        MovementsDocuments movementCredit = new MovementsDocuments();
+        movementCredit.setMovementType("ALTA TARJETA");
+        movementCredit.setCustomerDocument(cardRequest.getCustomerDocument());
+        movementCredit.setAmount(cardRequest.getCardAmount());
+        movementCredit.setCardNumber(cardNew.getCardNumber());
+        movementCredit.setMovementDate(LocalDate.now());
+
+        movementsRepository.save(movementCredit);
+
+        return cardNew;
     }
 
 
@@ -58,7 +75,19 @@ public class CreditCardServiceImpl implements CreditCardService{
         creditCardDocument.setCardAmountConsumed( creditCardDocument.getCardAmountConsumed() + consume );
         creditCardDocument.setCardAmountAvailable( creditCardDocument.getCardAmountAvailable() - consume );
 
-        return CreditCardMappers.mapCreditCardDocumentToCard(creditCardRepository.save(creditCardDocument));
+        Card cardConsumed = CreditCardMappers.mapCreditCardDocumentToCard(creditCardRepository.save(creditCardDocument));
+
+        //EL CONSUMO DE TARJETA PRODUCE UN MOVIMIENTO
+        MovementsDocuments movementCredit = new MovementsDocuments();
+        movementCredit.setMovementType("CONSUMO TARJETA");
+        movementCredit.setCustomerDocument(creditCardDocument.getCustomerDocument());
+        movementCredit.setAmount(consume);
+        movementCredit.setCardNumber(cardNumber);
+        movementCredit.setMovementDate(LocalDate.now());
+
+        movementsRepository.save(movementCredit);
+
+        return cardConsumed;
     }
 
     @Override
@@ -75,7 +104,19 @@ public class CreditCardServiceImpl implements CreditCardService{
         creditCardDocument.setCardAmountConsumed( creditCardDocument.getCardAmountConsumed() - payment );
         creditCardDocument.setCardAmountAvailable( creditCardDocument.getCardAmountAvailable() + payment);
 
-        return CreditCardMappers.mapCreditCardDocumentToCard(creditCardRepository.save(creditCardDocument));
+        Card cardPaid = CreditCardMappers.mapCreditCardDocumentToCard(creditCardRepository.save(creditCardDocument));
+
+        //EL PAGO DE TARJETA PRODUCE UN MOVIMIENTO
+        MovementsDocuments movementCredit = new MovementsDocuments();
+        movementCredit.setMovementType("PAGO TARJETA");
+        movementCredit.setCustomerDocument(creditCardDocument.getCustomerDocument());
+        movementCredit.setAmount(payment);
+        movementCredit.setCardNumber(cardNumber);
+        movementCredit.setMovementDate(LocalDate.now());
+
+        movementsRepository.save(movementCredit);
+
+        return cardPaid;
     }
 
     @Override

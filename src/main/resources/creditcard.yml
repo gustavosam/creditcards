@@ -143,7 +143,7 @@ components:
         cardAmountAvailable:
           type: number
           format: double
-        costumerDocument:
+        customerDocument:
           type: string
         creationDateCard:
           type: string
