@@ -88,15 +88,15 @@ paths:
         '404':
           description: Customer or Card are invalid
 
-  /card/customer/{customerDocument}:
+  /card/customer/{clientDocument}:
     get:
       tags:
         - cards
       summary: Allows you to consult information about your card.
       description: Allows you to consult information about your card like amounts.
-      operationId: getCreditCardsByCustomer
+      operationId: getCreditCardsByClient
       parameters:
-        - name: customerDocument
+        - name: clientDocument
           in: path
           description: Customer Document
           required: true
@@ -120,34 +120,19 @@ components:
     CardRequest:
       required:
         - cardAmount
-        - customerDocument
+        - clientDocument
       type: object
       properties:
         cardAmount:
           type: number
           format: double
-        customerDocument:
+        clientDocument:
           type: string
     Card:
       type: object
       properties:
-        cardNumber:
+        message:
           type: string
-          description: Card number
-        cardAmount:
-          type: number
-          format: double
-        cardAmountConsumed:
-          type: number
-          format: double
-        cardAmountAvailable:
-          type: number
-          format: double
-        customerDocument:
-          type: string
-        creationDateCard:
-          type: string
-          format: date
     CardPayment:
       required:
         - cardPaymentAmount

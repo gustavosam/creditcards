@@ -2,24 +2,29 @@ package com.microservice.creditcard.service;
 
 import com.microservice.creditcard.model.Card;
 import com.microservice.creditcard.model.CardRequest;
-
+import com.microservice.creditcard.util.CardDto;
 import java.util.List;
+
+/**
+ * Interfaz que contiene los métodos que serán implementados para trabajar
+ * la lógica de negocio.
+ * */
 
 public interface CreditCardService {
 
-    Card createCard(CardRequest cardRequest);
+  CardDto createCard(CardRequest cardRequest);
 
-    Boolean customerRequestExist(String customerDocument);
+  Boolean clientExist(String clientDocument);
 
-    Boolean validateCardAmountAvailable(String cardNumber, Double consume);
+  Boolean amountAvailable(String cardNumber, Double consume);
 
-    Boolean validateIfCardExist(String cardNumber);
+  Boolean cardExist(String cardNumber);
 
-    Card cardConsume(String cardNumber, Double consume);
+  CardDto cardConsume(String cardNumber, Double consume);
 
-    Boolean validateIfYouCanPayCard(String cardNumber, Double payment);
+  Boolean validateIfYouCanPayCard(String cardNumber, Double payment);
 
-    Card cardPayment(String cardNumber, Double payment);
+  CardDto payCard(String cardNumber, Double payment);
 
-    List<Card> getCardsByClient(String customerDocument);
+  List<Card> getCardsByClient(String customerDocument);
 }

@@ -1,37 +1,39 @@
 package com.microservice.creditcard.service.mapper;
 
-
 import com.microservice.creditcard.documents.CreditCardDocument;
-import com.microservice.creditcard.model.Card;
 import com.microservice.creditcard.model.CardRequest;
+import com.microservice.creditcard.util.CardDto;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
+/**
+ * Esta clase nos permite convertir una clase en otra.
+ * */
 public class CreditCardMappers {
 
-    public static CreditCardDocument mapCardRequestToCard(CardRequest cardRequest){
-        CreditCardDocument creditCardDocument = new CreditCardDocument();
+  /**
+   * Este método permite convertir una clase CardRequest a una clase CreditCardDocument.
+   * */
+  public static CreditCardDocument mapCardRequestToCardDocument(CardRequest cardRequest) {
+    CreditCardDocument creditCardDocument = new CreditCardDocument();
 
-        creditCardDocument.setCardAmount(cardRequest.getCardAmount());
-        creditCardDocument.setCustomerDocument(cardRequest.getCustomerDocument());
+    creditCardDocument.setCardAmount(cardRequest.getCardAmount());
+    creditCardDocument.setClientDocument(cardRequest.getClientDocument());
 
-        return creditCardDocument;
-    }
+    return creditCardDocument;
+  }
 
+  /**
+   * Este método permite convertir una clase CreditCardDocument en CardDto.
+   * */
+  public static CardDto mapCreditCardDocumentToCardDto(CreditCardDocument creditCardDocument) {
+    CardDto card = new CardDto();
 
-    public static Card mapCreditCardDocumentToCard(CreditCardDocument creditCardDocument){
+    card.setCardNumber(creditCardDocument.getCardNumber());
+    card.setCardAmount(creditCardDocument.getCardAmount());
+    card.setClientDocument(creditCardDocument.getClientDocument());
+    card.setAvailable(creditCardDocument.getAvailable());
+    card.setConsumed(creditCardDocument.getConsumed());
+    card.setCreationDateCard(creditCardDocument.getCreationDateCard());
 
-        Card card = new Card();
-        card.setCardNumber(creditCardDocument.getCardNumber());
-        card.setCardAmount(creditCardDocument.getCardAmount());
-        card.setCustomerDocument(creditCardDocument.getCustomerDocument());
-        card.setCardAmountAvailable(creditCardDocument.getCardAmountAvailable());
-        card.setCardAmountConsumed(creditCardDocument.getCardAmountConsumed());
-        card.setCreationDateCard(creditCardDocument.getCreationDateCard());
-        return card;
-
-    }
+    return card;
+  }
 }

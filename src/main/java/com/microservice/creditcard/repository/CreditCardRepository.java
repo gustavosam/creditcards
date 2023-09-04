@@ -1,12 +1,15 @@
 package com.microservice.creditcard.repository;
 
 import com.microservice.creditcard.documents.CreditCardDocument;
+import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.List;
-
+/**
+ * Esta interfaz contiene los métodos necesarios para el crud a la colección
+ * CreditCard.
+ * */
 public interface CreditCardRepository extends MongoRepository<CreditCardDocument, String> {
 
-    List<CreditCardDocument> findByCustomerDocument(String customerDocument);
+  List<CreditCardDocument> findByClientDocument(String customerDocument);
 
 }
