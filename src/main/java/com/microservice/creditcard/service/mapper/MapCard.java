@@ -5,6 +5,9 @@ import com.microservice.creditcard.model.CardRequest;
 import com.microservice.creditcard.util.CardDto;
 import org.mapstruct.Mapper;
 
+/**
+ * Interfaz de mapstruct que mapea las clases.
+ * */
 @Mapper(componentModel = "spring")
 public interface MapCard {
 
