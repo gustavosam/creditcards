@@ -55,17 +55,6 @@ public class CreditCardDelegateImpl implements CardApiDelegate {
 
     });
 
-    /*if (cardRequest.getClientDocument() == null) {
-      return ResponseEntity.badRequest().body(ErrorC.getInstance(Constants.DOCUMENT_EMPTY));
-    }
-
-    if (cardRequest.getCardAmount() == null) {
-      return ResponseEntity.badRequest().body(ErrorC.getInstance(Constants.AMOUNT_CARD_EMPTY));
-    }
-
-    return cardService.clientExist(cardRequest.getClientDocument())
-      ? ResponseEntity.status(HttpStatus.CREATED).body(cardService.createCard(cardRequest))
-      : ResponseEntity.badRequest().body(ErrorC.getInstance(Constants.CLIENT_NOT_EXIST));*/
   }
 
   @Override
@@ -108,27 +97,6 @@ public class CreditCardDelegateImpl implements CardApiDelegate {
 
     });
 
-    /*if (card.getCardNumber() == null) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(ErrorC.getInstance(Constants.CARD_EMPTY));
-    }
-
-    if (card.getCardConsumeAmount() == null || card.getCardConsumeAmount() == 0) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(ErrorC.getInstance(Constants.AMOUNT_EMPTY));
-    }
-
-    if (! cardService.cardExist(card.getCardNumber())) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-              .body(ErrorC.getInstance(Constants.CARD_NOT_EXIST));
-    }
-
-    if (! cardService.amountAvailable(card.getCardNumber(), card.getCardConsumeAmount())) {
-      return ResponseEntity.badRequest().body(ErrorC.getInstance(Constants.NOT_MONEY));
-    }
-
-    return ResponseEntity.status(HttpStatus.OK)
-            .body(cardService.cardConsume(card.getCardNumber(), card.getCardConsumeAmount()));*/
   }
 
   @Override
@@ -161,24 +129,6 @@ public class CreditCardDelegateImpl implements CardApiDelegate {
       });
     });
 
-    /*if (card.getCardNumber() == null) {
-      return ResponseEntity.badRequest().body(ErrorC.getInstance(Constants.CARD_EMPTY));
-    }
-
-    if (card.getCardPaymentAmount() == null || card.getCardPaymentAmount() == 0) {
-      return ResponseEntity.badRequest().body(ErrorC.getInstance(Constants.AMOUNT_NOT_EMPTY));
-    }
-
-    if (! cardService.cardExist(card.getCardNumber())) {
-      return ResponseEntity.badRequest().body(ErrorC.getInstance(Constants.CARD_NOT_EXIST));
-    }
-
-    if (! cardService.validateIfYouCanPayCard(card.getCardNumber(), card.getCardPaymentAmount())) {
-      return ResponseEntity.badRequest().body(ErrorC.getInstance(Constants.OVERPAYMENT));
-    }
-
-    return ResponseEntity.status(HttpStatus.OK)
-            .body(cardService.payCard(card.getCardNumber(), card.getCardPaymentAmount()));*/
   }
 
   @Override
@@ -189,6 +139,5 @@ public class CreditCardDelegateImpl implements CardApiDelegate {
 
     return Mono.just(ResponseEntity.ok(cardFlux));
 
-    //return ResponseEntity.status(HttpStatus.OK).body(cardService.getCardsByClient(clientDocument));
   }
 }

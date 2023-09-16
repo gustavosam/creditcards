@@ -28,13 +28,8 @@ public class CreditCardServiceImpl implements CreditCardService {
   @Autowired
   private CreditCardRepository creditCardRepository;
 
-  //@Autowired
-  //private CustomerFeignClient customerFeignClient;
   @Autowired
   private ClientWebClient clientWebClient;
-
-  //@Autowired
-  //private MovementFeignClient movementFeignClient;
 
   @Autowired
   private MovementWebClient movementWebClient;
@@ -67,16 +62,6 @@ public class CreditCardServiceImpl implements CreditCardService {
       return cardDto;
     });
 
-    /*CardDto cardNew = mapCard
-            .mapCreditCardDocumentToCardDto(creditCardRepository.save(cardDoc));
-    cardNew.setMessage(Constants.CARD_CREATED_OK);
-
-    movementFeignClient.saveMovement(mapMovement.setValues(
-        cardNew.getCardAmount(), cardNew.getClientDocument(),
-        cardNew.getCardNumber(), Constants.CARD_CREATED
-    ));
-
-    return cardNew;*/
   }
 
 
@@ -88,7 +73,6 @@ public class CreditCardServiceImpl implements CreditCardService {
 
     return creditCardDocument.map(creditCard -> (creditCard.getAvailable() - consume) >= 0);
 
-    //return (creditCardDocument.getAvailable() - consume) >= 0;
   }
 
 
@@ -123,21 +107,6 @@ public class CreditCardServiceImpl implements CreditCardService {
 
       return cardDto;
     });
-
-
-    /*creditCardDocument.setConsumed(creditCardDocument.getConsumed() + consume);
-    creditCardDocument.setAvailable(creditCardDocument.getAvailable() - consume);
-
-    CardDto cardConsumed = mapCard
-            .mapCreditCardDocumentToCardDto(creditCardRepository.save(creditCardDocument));
-    cardConsumed.setMessage(Constants.CARD_CONSUMED_OK);
-
-    movementFeignClient.saveMovement(mapMovement.setValues(
-            consume, cardConsumed.getClientDocument(),
-            cardConsumed.getCardNumber(), Constants.CARD_CONSUME
-    ));
-
-    return cardConsumed;*/
   }
 
   @Override
@@ -146,9 +115,6 @@ public class CreditCardServiceImpl implements CreditCardService {
     Mono<CreditCardDocument> creditCardDocument = creditCardRepository.findById(cardNumber);
 
     return creditCardDocument.map(creditCard -> (creditCard.getConsumed() > 0 && (payment > 0 && payment <= creditCard.getConsumed())));
-
-    /*return creditCardDocument.getConsumed() > 0
-            && (payment > 0 && payment <= creditCardDocument.getConsumed());*/
   }
 
   @Override
@@ -177,19 +143,6 @@ public class CreditCardServiceImpl implements CreditCardService {
       return cardDto;
     });
 
-    /*creditCardDocument.setConsumed(creditCardDocument.getConsumed() - payment);
-    creditCardDocument.setAvailable(creditCardDocument.getAvailable() + payment);
-
-    CardDto cardPaid = mapCard
-            .mapCreditCardDocumentToCardDto(creditCardRepository.save(creditCardDocument));
-    cardPaid.setMessage(Constants.CARD_PAID_OK);
-
-    movementFeignClient.saveMovement(mapMovement.setValues(
-            payment, cardPaid.getClientDocument(),
-            cardPaid.getCardNumber(), Constants.CARD_PAY
-    ));
-
-    return cardPaid;*/
   }
 
   @Override
@@ -200,14 +153,6 @@ public class CreditCardServiceImpl implements CreditCardService {
 
     return cardDocumentFlux.map(cardDocument-> mapCard.mapCreditCardDocumentToCardDto(cardDocument));
 
-    /*if (creditCardDocuments.isEmpty()) {
-      return new ArrayList<>();
-    }
-
-    return creditCardDocuments.stream()
-            .filter(Objects::nonNull)
-            .map(creditCardDocument -> mapCard.mapCreditCardDocumentToCardDto(creditCardDocument))
-            .collect(Collectors.toList());*/
   }
 
 
