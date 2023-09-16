@@ -3,6 +3,10 @@ package com.microservice.creditcard.service;
 import com.microservice.creditcard.model.Card;
 import com.microservice.creditcard.model.CardRequest;
 import com.microservice.creditcard.util.CardDto;
+import com.microservice.creditcard.util.ClientDto;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import java.util.List;
 
 /**
@@ -12,19 +16,19 @@ import java.util.List;
 
 public interface CreditCardService {
 
-  CardDto createCard(CardRequest cardRequest);
+  Mono<CardDto> createCard(CardRequest cardRequest);
 
-  Boolean clientExist(String clientDocument);
+  Mono<ClientDto> clientExist(String clientDocument);
 
-  Boolean amountAvailable(String cardNumber, Double consume);
+  Mono<Boolean> amountAvailable(String cardNumber, Double consume);
 
-  Boolean cardExist(String cardNumber);
+  Mono<Boolean> cardExist(String cardNumber);
 
-  CardDto cardConsume(String cardNumber, Double consume);
+  Mono<CardDto> cardConsume(String cardNumber, Double consume);
 
-  Boolean validateIfYouCanPayCard(String cardNumber, Double payment);
+  Mono<Boolean> validateIfYouCanPayCard(String cardNumber, Double payment);
 
-  CardDto payCard(String cardNumber, Double payment);
+  Mono<CardDto> payCard(String cardNumber, Double payment);
 
-  List<Card> getCardsByClient(String customerDocument);
+  Flux<Card> getCardsByClient(String customerDocument);
 }

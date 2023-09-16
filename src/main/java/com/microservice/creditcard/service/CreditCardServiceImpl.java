@@ -1,8 +1,6 @@
 package com.microservice.creditcard.service;
 
 import com.microservice.creditcard.documents.CreditCardDocument;
-import com.microservice.creditcard.feignclient.CustomerFeignClient;
-import com.microservice.creditcard.feignclient.MovementFeignClient;
 import com.microservice.creditcard.model.Card;
 import com.microservice.creditcard.model.CardRequest;
 import com.microservice.creditcard.repository.CreditCardRepository;
@@ -12,12 +10,13 @@ import com.microservice.creditcard.util.CardDto;
 import com.microservice.creditcard.util.ClientDto;
 import com.microservice.creditcard.util.Constants;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+
+import com.microservice.creditcard.webclient.ClientWebClient;
+import com.microservice.creditcard.webclient.MovementWebClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Esta clase implementa los métodos de la interfaz CreditCardService
@@ -29,11 +28,16 @@ public class CreditCardServiceImpl implements CreditCardService {
   @Autowired
   private CreditCardRepository creditCardRepository;
 
+  //@Autowired
+  //private CustomerFeignClient customerFeignClient;
   @Autowired
-  private CustomerFeignClient customerFeignClient;
+  private ClientWebClient clientWebClient;
+
+  //@Autowired
+  //private MovementFeignClient movementFeignClient;
 
   @Autowired
-  private MovementFeignClient movementFeignClient;
+  private MovementWebClient movementWebClient;
 
   @Autowired
   private MapMovement mapMovement;
@@ -42,14 +46,28 @@ public class CreditCardServiceImpl implements CreditCardService {
   private MapCard mapCard;
 
   @Override
-  public CardDto createCard(CardRequest cardRequest) {
+  public Mono<CardDto> createCard(CardRequest cardRequest) {
 
     CreditCardDocument cardDoc = mapCard.mapCardRequestToCardDocument(cardRequest);
     cardDoc.setCreationDateCard(LocalDate.now());
     cardDoc.setAvailable(cardRequest.getCardAmount());
     cardDoc.setConsumed(0.0);
 
-    CardDto cardNew = mapCard
+    Mono<CreditCardDocument> creditCardDocumentMono = creditCardRepository.save(cardDoc);
+
+    return creditCardDocumentMono.map(creditCardDocument -> {
+      CardDto cardDto = mapCard.mapCreditCardDocumentToCardDto(creditCardDocument);
+      cardDto.setMessage(Constants.CARD_CREATED_OK);
+
+      movementWebClient.saveMovement(mapMovement.setValues(
+              cardDto.getCardAmount(), cardDto.getClientDocument(),
+              cardDto.getCardNumber(), Constants.CARD_CREATED
+      )).subscribe();
+
+      return cardDto;
+    });
+
+    /*CardDto cardNew = mapCard
             .mapCreditCardDocumentToCardDto(creditCardRepository.save(cardDoc));
     cardNew.setMessage(Constants.CARD_CREATED_OK);
 
@@ -58,30 +76,56 @@ public class CreditCardServiceImpl implements CreditCardService {
         cardNew.getCardNumber(), Constants.CARD_CREATED
     ));
 
-    return cardNew;
+    return cardNew;*/
   }
 
 
 
   @Override
-  public Boolean amountAvailable(String cardNumber, Double consume) {
-    CreditCardDocument creditCardDocument = creditCardRepository.findById(cardNumber).get();
+  public Mono<Boolean> amountAvailable(String cardNumber, Double consume) {
 
-    return (creditCardDocument.getAvailable() - consume) >= 0;
+    Mono<CreditCardDocument> creditCardDocument = creditCardRepository.findById(cardNumber);
+
+    return creditCardDocument.map(creditCard -> (creditCard.getAvailable() - consume) >= 0);
+
+    //return (creditCardDocument.getAvailable() - consume) >= 0;
   }
 
 
 
   @Override
-  public Boolean cardExist(String cardNumber) {
+  public Mono<Boolean> cardExist(String cardNumber) {
     return creditCardRepository.existsById(cardNumber);
   }
 
   @Override
-  public CardDto cardConsume(String cardNumber, Double consume) {
-    CreditCardDocument creditCardDocument = creditCardRepository.findById(cardNumber).get();
+  public Mono<CardDto> cardConsume(String cardNumber, Double consume) {
 
-    creditCardDocument.setConsumed(creditCardDocument.getConsumed() + consume);
+    Mono<CreditCardDocument> creditCardDocument = creditCardRepository.findById(cardNumber);
+
+    Mono<CreditCardDocument> creditCardDocumentUpdated = creditCardDocument.flatMap(card -> {
+
+      card.setConsumed(card.getConsumed() + consume);
+      card.setAvailable(card.getAvailable() - consume);
+
+      return creditCardRepository.save(card);
+    });
+
+    return creditCardDocumentUpdated.map(creditCard -> {
+
+      CardDto cardDto = mapCard.mapCreditCardDocumentToCardDto(creditCard);
+      cardDto.setMessage(Constants.CARD_CONSUMED_OK);
+
+      movementWebClient.saveMovement(mapMovement.setValues(
+              consume, cardDto.getClientDocument(),
+              cardDto.getCardNumber(), Constants.CARD_CONSUME
+      )).subscribe();
+
+      return cardDto;
+    });
+
+
+    /*creditCardDocument.setConsumed(creditCardDocument.getConsumed() + consume);
     creditCardDocument.setAvailable(creditCardDocument.getAvailable() - consume);
 
     CardDto cardConsumed = mapCard
@@ -93,22 +137,47 @@ public class CreditCardServiceImpl implements CreditCardService {
             cardConsumed.getCardNumber(), Constants.CARD_CONSUME
     ));
 
-    return cardConsumed;
+    return cardConsumed;*/
   }
 
   @Override
-  public Boolean validateIfYouCanPayCard(String cardNumber, Double payment) {
-    CreditCardDocument creditCardDocument = creditCardRepository.findById(cardNumber).get();
+  public Mono<Boolean> validateIfYouCanPayCard(String cardNumber, Double payment) {
 
-    return creditCardDocument.getConsumed() > 0
-            && (payment > 0 && payment <= creditCardDocument.getConsumed());
+    Mono<CreditCardDocument> creditCardDocument = creditCardRepository.findById(cardNumber);
+
+    return creditCardDocument.map(creditCard -> (creditCard.getConsumed() > 0 && (payment > 0 && payment <= creditCard.getConsumed())));
+
+    /*return creditCardDocument.getConsumed() > 0
+            && (payment > 0 && payment <= creditCardDocument.getConsumed());*/
   }
 
   @Override
-  public CardDto payCard(String cardNumber, Double payment) {
-    CreditCardDocument creditCardDocument = creditCardRepository.findById(cardNumber).get();
+  public Mono<CardDto> payCard(String cardNumber, Double payment) {
 
-    creditCardDocument.setConsumed(creditCardDocument.getConsumed() - payment);
+    Mono<CreditCardDocument> creditCardDocument = creditCardRepository.findById(cardNumber);
+
+    Mono<CreditCardDocument> creditCardDocumentUpdated = creditCardDocument.flatMap(creditCard -> {
+
+      creditCard.setConsumed(creditCard.getConsumed() - payment);
+      creditCard.setAvailable(creditCard.getAvailable() + payment);
+
+      return creditCardRepository.save(creditCard);
+    });
+
+    return creditCardDocumentUpdated.map(cardDocument -> {
+
+      CardDto cardDto = mapCard.mapCreditCardDocumentToCardDto(cardDocument);
+      cardDto.setMessage(Constants.CARD_PAID_OK);
+
+      movementWebClient.saveMovement(mapMovement.setValues(
+              payment, cardDto.getClientDocument(),
+              cardDto.getCardNumber(), Constants.CARD_PAY
+      )).subscribe();
+
+      return cardDto;
+    });
+
+    /*creditCardDocument.setConsumed(creditCardDocument.getConsumed() - payment);
     creditCardDocument.setAvailable(creditCardDocument.getAvailable() + payment);
 
     CardDto cardPaid = mapCard
@@ -120,29 +189,31 @@ public class CreditCardServiceImpl implements CreditCardService {
             cardPaid.getCardNumber(), Constants.CARD_PAY
     ));
 
-    return cardPaid;
+    return cardPaid;*/
   }
 
   @Override
-  public List<Card> getCardsByClient(String customerDocument) {
-    List<CreditCardDocument> creditCardDocuments = creditCardRepository
+  public Flux<Card> getCardsByClient(String customerDocument) {
+
+    Flux<CreditCardDocument> cardDocumentFlux = creditCardRepository
             .findByClientDocument(customerDocument);
 
-    if (creditCardDocuments.isEmpty()) {
+    return cardDocumentFlux.map(cardDocument-> mapCard.mapCreditCardDocumentToCardDto(cardDocument));
+
+    /*if (creditCardDocuments.isEmpty()) {
       return new ArrayList<>();
     }
 
     return creditCardDocuments.stream()
             .filter(Objects::nonNull)
             .map(creditCardDocument -> mapCard.mapCreditCardDocumentToCardDto(creditCardDocument))
-            .collect(Collectors.toList());
+            .collect(Collectors.toList());*/
   }
 
 
   @Override
-  public Boolean clientExist(String clientDocument) {
-    ClientDto complementary = customerFeignClient.getClient(clientDocument);
+  public Mono<ClientDto> clientExist(String clientDocument) {
 
-    return complementary.getDocument() != null;
+    return clientWebClient.getClient(clientDocument);
   }
 }
