@@ -8,7 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * Esta es la clase principal del proyecto.
  * */
 @SpringBootApplication
-@EnableFeignClients
+//@EnableFeignClients
 public class CreditcardApplication {
 
   public static void main(String[] args) {
