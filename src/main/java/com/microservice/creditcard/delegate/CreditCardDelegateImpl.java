@@ -50,6 +50,10 @@ public class CreditCardDelegateImpl implements CardApiDelegate {
           return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorC.getInstance(Constants.CLIENT_NOT_EXIST)));
         }
 
+        if(clientInf.getExpiredDebt()){
+          return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorC.getInstance(Constants.DEBT_EXIST)));
+        }
+
         return cardService.createCard(card).map(ResponseEntity::ok);
       });
 

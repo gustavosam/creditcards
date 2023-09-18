@@ -11,6 +11,8 @@ public class Constants {
 
   public static final String CLIENT_NOT_EXIST = "El documento del cliente ingresado no existe";
 
+  public static final String DEBT_EXIST = "Usted tiene una deuda vencida";
+
   public static final String CARD_EMPTY = "El número de la tarjeta no puede estar vacío";
 
   public static final String AMOUNT_EMPTY = "El monto a consumir no puede estar vacío";
