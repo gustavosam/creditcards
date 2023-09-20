@@ -13,7 +13,7 @@ public class CircuitBreakerConfiguration {
   @Bean
   public CircuitBreakerRegistry circuitBreakerRegistry() {
     CircuitBreakerConfig config = CircuitBreakerConfig.custom()
-            .failureRateThreshold(50) // Umbral de tasa de fallo
+            .failureRateThreshold(1) // Umbral de tasa de fallo al 1% o cualquier valor menor
             .waitDurationInOpenState(Duration.ofMillis(10000)) // Tiempo de espera en estado abierto
             .build();
 
